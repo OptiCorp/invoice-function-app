@@ -10,20 +10,7 @@ on:
 
 jobs:
   build:
-
-
-
-
-    - name: Restore dependencies
-      run: dotnet restore
-      working-directory: ./InvoiceApp
-    - name: Build
-      run: dotnet build --no-restore
-      working-directory: ./InvoiceApp
-
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET
@@ -36,16 +23,3 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
       working-directory: ./InvoiceApp
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-      working-directory: ./turbin.sikker.core
-    - name: Publish
-      run: dotnet publish turbin.sikker.core.csproj -c Release -o website
-      working-directory: ./turbin.sikker.core
-
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: website
-        path: turbin.sikker.core/website/**
-        if-no-files-found: error
