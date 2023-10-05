@@ -26,28 +26,23 @@
     ]
   },
   {
-    "name": "InvoiceController",
+    "name": "InvoiceControllerBus",
     "scriptFile": "InvoiceApp.dll",
-    "entryPoint": "InvoiceApp.Functions.InvoiceController.Run",
+    "entryPoint": "InvoiceApp.Functions.InvoiceControllerBus.Run",
     "language": "dotnet-isolated",
     "properties": {
       "IsCodeless": false
     },
     "bindings": [
       {
-        "name": "req",
-        "type": "httpTrigger",
+        "name": "mySbMsg",
+        "type": "serviceBusTrigger",
         "direction": "In",
-        "authLevel": "Function",
-        "methods": [
-          "get",
-          "post"
-        ]
-      },
-      {
-        "name": "$return",
-        "type": "http",
-        "direction": "Out"
+        "dataType": "String",
+        "topicName": "generate-invoice",
+        "subscriptionName": "generate-invoice-function",
+        "connection": "connectionStringBus",
+        "cardinality": "One"
       }
     ]
   },

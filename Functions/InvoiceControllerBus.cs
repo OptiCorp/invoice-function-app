@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Azure.Messaging.ServiceBus;
 using InvoiceApp.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -39,10 +40,17 @@ namespace InvoiceApp.Functions
 
             var client = new HttpClient();
             var response = await client.PostAsync(
-                // string.Format("https://turbinsikker-fa-prod.azurewebsites.net/api/PdfGenerator?code=hc8nBX45bjn4GJtWTlEnfu-MZsGb_cQEL8attWcjTx58AzFuzOPSqg==&invoiceId={1}", invoice.Id),
-                string.Format("http://localhost:7072/api/PdfGenerator?invoiceId={0}", invoice.Id),
+                string.Format("https://turbinsikker-fa-prod.azurewebsites.net/api/PdfGenerator?code=hc8nBX45bjn4GJtWTlEnfu-MZsGb_cQEL8attWcjTx58AzFuzOPSqg==&invoiceId={0}", invoice.Id),
+                // string.Format("http://localhost:7072/api/PdfGenerator?invoiceId={0}", invoice.Id),
                 null
             );
+
+            var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
+            var sbClient = new ServiceBusClient(connectionString);
+            var sender = sbClient.CreateSender("add-invoice");
+            var body = JsonSerializer.Serialize(invoice);
+            var sbMessage = new ServiceBusMessage(body);
+            await sender.SendMessageAsync(sbMessage);
 
             return new OkObjectResult("Success");
         }
