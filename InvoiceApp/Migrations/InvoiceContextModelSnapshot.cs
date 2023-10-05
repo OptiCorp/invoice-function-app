@@ -54,7 +54,7 @@ namespace InvoiceApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Invoice");
+                    b.ToTable("Invoice", (string)null);
                 });
 #pragma warning restore 612, 618
         }

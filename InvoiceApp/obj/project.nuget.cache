@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "UF20uPm2gBO0c3uLaSsNViOyrMHipohCQ72KLM3fi79oWIVBLrUJS0RhiF56mvJ6f/KL/pewIy/rg22h365dyw==",
+  "dgSpecHash": "d5253I/SR8fcbetsFKyQmWlHsQYsyHnDF1bjp703Zo8jQjHQAm4Ah2J3wm7irjK6r/jeQrwPpvqtsvIDFwyCYw==",
   "success": true,
-  "projectFilePath": "/Users/henrik.laland/OptiCorp/invoice-function-app/InvoiceApp.csproj",
+  "projectFilePath": "/Users/henrik.laland/OptiCorp/invoice-function-app/InvoiceApp/InvoiceApp.csproj",
   "expectedPackageFiles": [
     "/Users/henrik.laland/.nuget/packages/azure.communication.email/1.0.1/azure.communication.email.1.0.1.nupkg.sha512",
     "/Users/henrik.laland/.nuget/packages/azure.core/1.35.0/azure.core.1.35.0.nupkg.sha512",

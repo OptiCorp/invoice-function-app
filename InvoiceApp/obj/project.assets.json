@@ -11326,11 +11326,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/henrik.laland/OptiCorp/invoice-function-app/InvoiceApp.csproj",
+      "projectUniqueName": "/Users/henrik.laland/OptiCorp/invoice-function-app/InvoiceApp/InvoiceApp.csproj",
       "projectName": "InvoiceApp",
-      "projectPath": "/Users/henrik.laland/OptiCorp/invoice-function-app/InvoiceApp.csproj",
+      "projectPath": "/Users/henrik.laland/OptiCorp/invoice-function-app/InvoiceApp/InvoiceApp.csproj",
       "packagesPath": "/Users/henrik.laland/.nuget/packages/",
-      "outputPath": "/Users/henrik.laland/OptiCorp/invoice-function-app/obj/",
+      "outputPath": "/Users/henrik.laland/OptiCorp/invoice-function-app/InvoiceApp/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/henrik.laland/.nuget/NuGet/NuGet.Config"

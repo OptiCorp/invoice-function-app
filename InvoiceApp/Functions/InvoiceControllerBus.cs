@@ -28,7 +28,7 @@ namespace InvoiceApp.Functions
                 CreatedDate = DateTime.Now,
                 SentDate = DateTime.Now,
                 Status = InvoiceStatus.Unpaid,
-                Sender = invoiceDto.Sender,
+                Sender = "Opticorp",
                 Receiver = invoiceDto.Receiver,
                 Amount = invoiceDto.Amount,
                 PdfBlobLink = Guid.NewGuid().ToString()
