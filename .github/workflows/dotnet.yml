@@ -5,7 +5,7 @@ name: Build backend
 
 on:
   pull_request: 
-    branches: [ "develop", "master" ]
+    branches: [ "developer", "main" ]
   workflow_dispatch:
 
 jobs:
