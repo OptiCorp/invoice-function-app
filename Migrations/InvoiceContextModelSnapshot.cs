@@ -22,7 +22,7 @@ namespace InvoiceApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("InvoiceApp.Invoice", b =>
+            modelBuilder.Entity("InvoiceApp.Model.Invoice", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,7 +37,7 @@ namespace InvoiceApp.Migrations
                     b.Property<string>("PdfBlobLink")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Reciever")
+                    b.Property<string>("Receiver")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Sender")
@@ -54,7 +54,7 @@ namespace InvoiceApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Invoice", (string)null);
+                    b.ToTable("Invoice");
                 });
 #pragma warning restore 612, 618
         }

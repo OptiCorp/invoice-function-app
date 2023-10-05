@@ -11,7 +11,8 @@ namespace InvoiceApp
     {
         static async Task Main(string[] args)
         {
-            string sqlConnectionString = Environment.GetEnvironmentVariable("InvoiceDbConnectionString");
+            // string sqlConnectionString = Environment.GetEnvironmentVariable("InvoiceDbConnectionString");
+            string sqlConnectionString = "Server=tcp:dbserverv2-turbinsikker-prod.database.windows.net,1433;Initial Catalog=sqldb-invoice;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=Active Directory Default;";
 
             var host = new HostBuilder()
                 .ConfigureFunctionsWorkerDefaults()

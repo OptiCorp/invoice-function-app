@@ -1,0 +1,12 @@
+{
+    "IsEncrypted": false,
+    "Values": {
+      "AzureWebJobsStorage": "<connection string>",
+      "SqlConnectionString": "Server=tcp:dbserverv2-turbinsikker-prod.database.windows.net,1433;Initial Catalog=sqldb-invoice;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication='Active Directory Default';",
+      "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+      "connectionStringBus": "Endpoint=sb://servicebus-turbinsikker-prod.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=jsxc2wM5vV4rhtevLn921gUZCcs7eLEsg+ASbHwJEng=",
+      "PdfContainerEndpoint": "https://bsturbinsikkertest.blob.core.windows.net/pdf-container",
+      "AZURE_CLIENT_ID": "7ba87be7-bb2b-4f09-b4d0-b47c27191947",
+      "EmailConnectionString": "endpoint=https://turbinsikker-comms-prod.norway.communication.azure.com/;accesskey=Gd3Q7tfeFLa3zeylVJP/RH7QxvZ2Egp2qmTQCxzMTplLaoFuWgIqgRoaCwvUMhAJrc77rkNljwtJV7ye+fYLFQ=="
+    }
+  }

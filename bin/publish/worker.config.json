@@ -1,0 +1,9 @@
+{
+  "description": {
+    "language": "dotnet-isolated",
+    "extensions": [ ".dll" ],
+    "defaultExecutablePath": "dotnet",
+    "defaultWorkerPath": "InvoiceApp.dll",
+    "workerIndexing": "false"
+  }
+}

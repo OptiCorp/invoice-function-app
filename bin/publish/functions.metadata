@@ -1,0 +1,80 @@
+[
+  {
+    "name": "EmailSender",
+    "scriptFile": "InvoiceApp.dll",
+    "entryPoint": "InvoiceApp.Functions.EmailSender.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "type": "httpTrigger",
+        "direction": "In",
+        "authLevel": "Function",
+        "methods": [
+          "get",
+          "post"
+        ]
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "InvoiceController",
+    "scriptFile": "InvoiceApp.dll",
+    "entryPoint": "InvoiceApp.Functions.InvoiceController.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "type": "httpTrigger",
+        "direction": "In",
+        "authLevel": "Function",
+        "methods": [
+          "get",
+          "post"
+        ]
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "PdfGenerator",
+    "scriptFile": "InvoiceApp.dll",
+    "entryPoint": "InvoiceApp.Functions.PdfGenerator.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "type": "httpTrigger",
+        "direction": "In",
+        "authLevel": "Function",
+        "methods": [
+          "get",
+          "post"
+        ]
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  }
+]

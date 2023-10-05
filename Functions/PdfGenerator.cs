@@ -29,7 +29,6 @@ namespace InvoiceApp.Functions
         {
             var query = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
             var invoiceId = query["invoiceId"];
-            var code = query["code"];
 
             Invoice invoice = await _context.Invoice.FirstOrDefaultAsync(i => i.Id == invoiceId);
 
@@ -39,6 +38,7 @@ namespace InvoiceApp.Functions
                 new DefaultAzureCredential(
                     new DefaultAzureCredentialOptions {ManagedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")}
                 ));
+
 
             PdfDocument document = new PdfDocument();
             document.Info.Title = "Created with PDFsharp";
@@ -78,7 +78,6 @@ namespace InvoiceApp.Functions
                 XStringFormats.Center);
 
 
-
             try
             {
                 await containerClient.CreateIfNotExistsAsync();
@@ -99,7 +98,8 @@ namespace InvoiceApp.Functions
             
 
             var response = await client.PostAsync(
-                string.Format("https://turbinsikker-fa-prod.azurewebsites.net/api/EmailSender?code={0}&invoiceId={1}", code, invoice.Id),
+                // string.Format("https://turbinsikker-fa-prod.azurewebsites.net/api/EmailSender?code=m8TUaNIgshHZGyM-irbTxvNrGkilp_TbCltwEs79Z8JIAzFu5vn1aA==&invoiceId={0}", invoice.Id),
+                string.Format("http://localhost:7072/api/EmailSender?invoiceId={0}", invoice.Id),
                 null);
 
             if (response.StatusCode != HttpStatusCode.OK) return new BadRequestObjectResult("Email sender failed");
