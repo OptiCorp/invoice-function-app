@@ -21,7 +21,7 @@ namespace InvoiceApp.Functions
         public async Task<IActionResult> Run(
             [ServiceBusTrigger("generate-invoice", "generate-invoice-function", Connection = "connectionStringBus")]string mySbMsg)
         {
-            InvoiceDto invoiceDto = JsonSerializer.Deserialize<InvoiceDto>(mySbMsg);
+            InvoiceDto invoiceDto = System.Text.Json.JsonSerializer.Deserialize<InvoiceDto>(mySbMsg);
 
             Invoice invoice = new Invoice
             {
@@ -48,7 +48,7 @@ namespace InvoiceApp.Functions
             var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
             var sbClient = new ServiceBusClient(connectionString);
             var sender = sbClient.CreateSender("add-invoice");
-            var body = JsonSerializer.Serialize(invoice);
+            var body = System.Text.Json.JsonSerializer.Serialize(invoice);
             var sbMessage = new ServiceBusMessage(body);
             await sender.SendMessageAsync(sbMessage);
 
