@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -21,7 +23,9 @@ namespace InvoiceApp.Functions
         public async Task<IActionResult> Run(
             [ServiceBusTrigger("generate-invoice", "generate-invoice-function", Connection = "connectionStringBus")]string mySbMsg)
         {
-            InvoiceDto invoiceDto = System.Text.Json.JsonSerializer.Deserialize<InvoiceDto>(mySbMsg);
+            InvoiceDto invoiceDto = JsonSerializer.Deserialize<InvoiceDto>(mySbMsg);
+
+            var workflowsSerialized = JsonSerializer.Serialize<List<Workflow>>(invoiceDto.Workflows);
 
             Invoice invoice = new Invoice
             {
@@ -31,7 +35,8 @@ namespace InvoiceApp.Functions
                 Sender = "Opticorp",
                 Receiver = invoiceDto.Receiver,
                 Amount = invoiceDto.Amount,
-                PdfBlobLink = Guid.NewGuid().ToString()
+                PdfBlobLink = Guid.NewGuid().ToString(),
+                WorkflowsSerialized = workflowsSerialized
             };
             
 
@@ -40,15 +45,15 @@ namespace InvoiceApp.Functions
 
             var client = new HttpClient();
             var response = await client.PostAsync(
-                string.Format("https://turbinsikker-fa-prod.azurewebsites.net/api/PdfGenerator?code=hc8nBX45bjn4GJtWTlEnfu-MZsGb_cQEL8attWcjTx58AzFuzOPSqg==&invoiceId={0}", invoice.Id),
-                // string.Format("http://localhost:7072/api/PdfGenerator?invoiceId={0}", invoice.Id),
+                // string.Format("https://turbinsikker-fa-prod.azurewebsites.net/api/PdfGenerator?code=hc8nBX45bjn4GJtWTlEnfu-MZsGb_cQEL8attWcjTx58AzFuzOPSqg==&invoiceId={0}", invoice.Id),
+                string.Format("http://localhost:7071/api/PdfGenerator?invoiceId={0}", invoice.Id),
                 null
             );
 
             var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
             var sbClient = new ServiceBusClient(connectionString);
             var sender = sbClient.CreateSender("add-invoice");
-            var body = System.Text.Json.JsonSerializer.Serialize(invoice);
+            var body = JsonSerializer.Serialize(invoice);
             var sbMessage = new ServiceBusMessage(body);
             await sender.SendMessageAsync(sbMessage);
 

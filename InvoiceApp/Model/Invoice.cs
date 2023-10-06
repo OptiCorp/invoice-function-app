@@ -33,5 +33,7 @@ namespace InvoiceApp.Model
         public int Amount { get; set; }
 
         public string PdfBlobLink { get; set; }
+
+        public string WorkflowsSerialized { get; set; }
     }
 }
