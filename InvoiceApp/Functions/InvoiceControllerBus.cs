@@ -55,7 +55,7 @@ namespace InvoiceApp.Functions
                 Id = invoice.Id,
                 CreatedDate = invoice.CreatedDate,
                 SentDate = invoice.SentDate,
-                Status = Enum.GetName(typeof(InvoiceStatus), InvoiceStatus.Unpaid),
+                Status = invoice.Status,
                 Sender = invoice.Sender,
                 Receiver = invoice.Receiver,
                 Amount = invoice.Amount,
