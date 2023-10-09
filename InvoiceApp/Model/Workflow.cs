@@ -6,7 +6,7 @@ namespace InvoiceApp.Model
 
         public string Name { get; set; }
 
-        public float CompletionTime { get; set; }
+        public int? CompletionTime { get; set; }
 
         public int HourlyRate { get; set; }
     }
