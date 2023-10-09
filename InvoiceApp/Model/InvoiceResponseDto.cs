@@ -13,7 +13,7 @@ namespace InvoiceApp.Model
 
         public DateTime SentDate { get; set; }
 
-        public string Status { get; set; }
+        public InvoiceStatus Status { get; set; }
 
         public string Sender { get; set; }
 
