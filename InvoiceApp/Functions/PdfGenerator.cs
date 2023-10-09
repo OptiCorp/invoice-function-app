@@ -36,7 +36,6 @@ namespace InvoiceApp.Functions
             var workflows = JsonSerializer.Deserialize<List<Workflow>>(invoice.WorkflowsSerialized);
 
             var numberOfWorkflows = workflows.Count;
-            int total = 0;
 
             string containerEndpoint = Environment.GetEnvironmentVariable("PdfContainerEndpoint");
             BlobContainerClient containerClient = new BlobContainerClient(
@@ -84,10 +83,9 @@ namespace InvoiceApp.Functions
                 gfx.DrawString(string.Format("Workflow: {0}, Hours: {1}, Rate: {2}, Total: {3}", workflows[i].Name, workflows[i].CompletionTime, workflows[i].HourlyRate, workflows[i].CompletionTime*workflows[i].HourlyRate), font, XBrushes.Black,
                 new XRect(0, page.Height*(5+i)/(6+numberOfWorkflows), page.Width, page.Height/(6+numberOfWorkflows)),
                 XStringFormats.Center);
-                total += workflows[i].CompletionTime*workflows[i].HourlyRate;
             }
 
-            gfx.DrawString(string.Format("Your total is: {0}kr", total), font, XBrushes.Black,
+            gfx.DrawString(string.Format("Your total is: {0}kr", invoice.Amount), font, XBrushes.Black,
                 new XRect(0, page.Height*(5+numberOfWorkflows)/(6+numberOfWorkflows), page.Width, page.Height/(6+numberOfWorkflows)),
                 XStringFormats.Center);
 
