@@ -36,7 +36,7 @@ namespace InvoiceApp.Functions
             var workflows = JsonSerializer.Deserialize<List<Workflow>>(invoice.WorkflowsSerialized);
 
             var numberOfWorkflows = workflows.Count;
-            int total = 0;
+            float total = 0f;
 
             string containerEndpoint = Environment.GetEnvironmentVariable("PdfContainerEndpoint");
             BlobContainerClient containerClient = new BlobContainerClient(
