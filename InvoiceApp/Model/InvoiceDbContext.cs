@@ -17,8 +17,7 @@ namespace InvoiceApp.Model
     {
         public InvoiceContext CreateDbContext(string[] args)
         {
-            // string sqlConnectionString = Environment.GetEnvironmentVariable("InvoiceDbConnectionString");
-            string sqlConnectionString = "Server=tcp:dbserverv2-turbinsikker-prod.database.windows.net,1433;Initial Catalog=sqldb-invoice;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication=Active Directory Default;";
+            string sqlConnectionString = Environment.GetEnvironmentVariable("InvoiceDbConnectionString");
             var optionsBuilder = new DbContextOptionsBuilder<InvoiceContext>();
             optionsBuilder.UseSqlServer(sqlConnectionString);
 
