@@ -12,8 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
-using PdfSharpCore.Drawing;
 using PdfSharpCore.Pdf;
+using HtmlRendererCore.Core;
 
 namespace InvoiceApp.Functions
 {
@@ -44,51 +44,20 @@ namespace InvoiceApp.Functions
                     new DefaultAzureCredentialOptions {ManagedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")}
                 ));
 
-
-            PdfDocument document = new PdfDocument();
-            document.Info.Title = "Created with PDFsharp";
-
-            //Create an empty page
-            PdfPage page = document.AddPage();
-            
-            //Get an XGraphics object for drawing
-            XGraphics gfx = XGraphics.FromPdfPage(page);
-
-            //Create a font
-            XFont font = new XFont("Verdana", 12, XFontStyle.BoldItalic);
-
-            //Draw the text
-            gfx.DrawString(string.Format("Invoice ID: {0}", invoice.Id), font, XBrushes.Black,
-                new XRect(0, page.Height*0/(6+numberOfWorkflows), page.Width, page.Height/(6+numberOfWorkflows)),
-                XStringFormats.Center);
-
-            gfx.DrawString(string.Format("Date sent: {0}", invoice.SentDate), font, XBrushes.Black,
-                new XRect(0, page.Height*1/(6+numberOfWorkflows), page.Width, page.Height/(6+numberOfWorkflows)),
-                XStringFormats.Center);
-
-            gfx.DrawString(string.Format("Hello {0}, this is your invoice", invoice.Receiver), font, XBrushes.Black,
-                new XRect(0, page.Height*2/(6+numberOfWorkflows), page.Width, page.Height/(6+numberOfWorkflows)),
-                XStringFormats.Center);
-
-            gfx.DrawString(string.Format("This invoice is from: {0}", invoice.Sender), font, XBrushes.Black,
-                new XRect(0, page.Height*3/(6+numberOfWorkflows), page.Width, page.Height/(6+numberOfWorkflows)),
-                XStringFormats.Center);
-
-            gfx.DrawString(string.Format("Invoice status: {0}", invoice.Status), font, XBrushes.Black,
-                new XRect(0, page.Height*4/(6+numberOfWorkflows), page.Width, page.Height/(6+numberOfWorkflows)),
-                XStringFormats.Center);
+            string htmlStyle = "<style>body{padding: 5%;}table{border: solid;width: 100%;border-collapse: collapse;}th,td{padding: 8px;border: solid;}td{text-align: center;}</style>";
+            string html = string.Format("<html><head>{0}</head><body><h2>Hello {1}, this is your requested invoice</h2><table><tr><th>Checklist name</th><th>Hours</th><th>Hourly rate</th><th>Total</th></tr>", htmlStyle, invoice.Receiver);
 
             for (int i = 0; i<numberOfWorkflows; i++)
             {
-                gfx.DrawString(string.Format("Workflow: {0}, Hours: {1}, Rate: {2}, Total: {3}", workflows[i].Name, workflows[i].CompletionTime, workflows[i].HourlyRate, workflows[i].CompletionTime*workflows[i].HourlyRate), font, XBrushes.Black,
-                new XRect(0, page.Height*(5+i)/(6+numberOfWorkflows), page.Width, page.Height/(6+numberOfWorkflows)),
-                XStringFormats.Center);
+                var workflow = workflows[i];
+                string row = string.Format("<tr><td>{0}</td><td>{1}</td><td>{2}kr</td><td>{3}kr</td></tr>", workflow.Name, workflow.CompletionTime, workflow.HourlyRate, workflow.CompletionTime*workflow.HourlyRate);
+                html += row;
             }
 
-            gfx.DrawString(string.Format("Your total is: {0}kr", invoice.Amount), font, XBrushes.Black,
-                new XRect(0, page.Height*(5+numberOfWorkflows)/(6+numberOfWorkflows), page.Width, page.Height/(6+numberOfWorkflows)),
-                XStringFormats.Center);
+            string ending = string.Format("</table><h3>Your total is {0}kr</h3></body></html>", invoice.Amount);
+            html += ending;
 
+            var pdf = HtmlRendererCore.PdfSharp.PdfGenerator.GeneratePdf(html, PdfSharpCore.PageSize.A4);
 
             try
             {
@@ -96,7 +65,7 @@ namespace InvoiceApp.Functions
 
                 using (MemoryStream blobStream = new MemoryStream())
                 {
-                    document.Save(blobStream, false);
+                    pdf.Save(blobStream, false);
                     blobStream.Position = 0;
                     await containerClient.UploadBlobAsync(invoice.PdfBlobLink, blobStream);
                 }
