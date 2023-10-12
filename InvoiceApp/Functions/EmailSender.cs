@@ -33,6 +33,8 @@ namespace InvoiceApp.Functions
 
             var invoice = await _context.Invoice.FirstOrDefaultAsync(i => i.Id == invoiceId);
 
+            if (invoice == null) return new NotFoundObjectResult("Email failed, no invoice found with this ID");
+
             string containerEndpoint = Environment.GetEnvironmentVariable("PdfContainerEndpoint");
             BlobContainerClient containerClient = new BlobContainerClient(
                 new Uri(containerEndpoint), 
@@ -44,6 +46,9 @@ namespace InvoiceApp.Functions
             var blobClient = containerClient.GetBlobClient(invoice.PdfBlobLink);
             await blobClient.DownloadToAsync(stream);
             stream.Position = 0;
+
+            if (stream.Length == 0) return new NotFoundObjectResult("Email failed, pdf does not exist");
+            
 
             string connectionString = Environment.GetEnvironmentVariable("EmailConnectionString");
             var emailClient = new EmailClient(connectionString);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -32,7 +33,12 @@ namespace InvoiceApp.Functions
             var invoiceId = query["invoiceId"];
 
             Invoice invoice = await _context.Invoice.FirstOrDefaultAsync(i => i.Id == invoiceId);
+
+            if (invoice == null) return new NotFoundObjectResult("PDF failed, no invoice found with this ID.");
+
             var workflows = JsonSerializer.Deserialize<List<Workflow>>(invoice.WorkflowsSerialized);
+
+            if (workflows.Count == 0) return new BadRequestObjectResult("No workflows associated with this invoice.");
 
             var numberOfWorkflows = workflows.Count;
 
@@ -43,18 +49,6 @@ namespace InvoiceApp.Functions
                     new DefaultAzureCredentialOptions {ManagedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")}
                 ));
 
-
-            // string html = "<html><head><style>body{padding: 5%;}table{border: solid;width: 100%;}th,td{padding: 8px;border: solid;}td{text-align: center;}</style></head><body><h3>Invoice</h3><table style='border-collapse:collapse'><tr><th>Checklist name</th><th>Hours</th><th>Hourly rate</th><th>Total</th></tr>";
-
-            // for (int i = 0; i<numberOfWorkflows; i++)
-            // {
-            //     var workflow = workflows[i];
-            //     string row = string.Format("<tr><td>{0}</td><td>{1}</td><td>{2}kr</td><td>{3}kr</td></tr>", workflow.Name, workflow.CompletionTime, workflow.HourlyRate, workflow.CompletionTime*workflow.HourlyRate);
-            //     html += row;
-            // }
-
-            // string ending = string.Format("</table><h3>Your total is {0}kr</h3></body></html>", invoice.Amount);
-            // html += ending;
 
             string htmlStyle = "<style>.invoice-box {max-width: 80%;margin: auto;padding: 30px;border: 1px solid #eee;box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);font-size: 16px;line-height: 24px;font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;color: #555;}.invoice-box table {width: 100%;line-height: inherit;text-align: left;}.invoice-box table.table-class {width: 80%;line-height: inherit;text-align: left;}.invoice-box table td {padding: 5px;vertical-align: top;}.right-align {text-align: right;}.invoice-box table tr.top table td {padding-bottom: 20px;}.invoice-box table tr.top table td.title {font-size: 45px;line-height: 45px;color: #333;}.invoice-box table tr.information table td {padding-bottom: 40px;}.invoice-box table tr.heading td {background: #eee;border-bottom: 1px solid #ddd;font-weight: bold;}.invoice-box table tr.details td {padding-bottom: 20px;}.invoice-box table tr.item td {border-bottom: 1px solid #eee;}.invoice-box table tr.item.last td {border-bottom: none;}.invoice-box table tr.total td.total-data {border-top: 2px solid #eee;font-weight: bold;text-align: right;}</style>";
             string htmlInvoiceInfo = string.Format("<tr class='top'><td colspan='5'><table><tr><td class='title'></td><td class='right-align'>Invoice ID: {0}<br />Sent: {1}</td></tr></table></td></tr>", invoice.Id, invoice.SentDate);
@@ -103,10 +97,10 @@ namespace InvoiceApp.Functions
                 string.Format(Environment.GetEnvironmentVariable("SendEmailEndpoint") + "{0}", invoice.Id),
                 null);
 
-            if (response.StatusCode != HttpStatusCode.OK) return new BadRequestObjectResult("Email sender failed");
+            if (response.StatusCode != HttpStatusCode.OK) return new BadRequestObjectResult(response.Content);
 
 
-            return new OkResult();
+            return new OkObjectResult("PDF was generated and email was sent.");
         }
     }
 }
