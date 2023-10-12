@@ -43,6 +43,7 @@ namespace InvoiceApp.Functions
                     new DefaultAzureCredentialOptions {ManagedIdentityClientId = Environment.GetEnvironmentVariable("AZURE_CLIENT_ID")}
                 ));
 
+
             // string html = "<html><head><style>body{padding: 5%;}table{border: solid;width: 100%;}th,td{padding: 8px;border: solid;}td{text-align: center;}</style></head><body><h3>Invoice</h3><table style='border-collapse:collapse'><tr><th>Checklist name</th><th>Hours</th><th>Hourly rate</th><th>Total</th></tr>";
 
             // for (int i = 0; i<numberOfWorkflows; i++)
