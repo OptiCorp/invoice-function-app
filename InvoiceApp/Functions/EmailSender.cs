@@ -49,7 +49,6 @@ namespace InvoiceApp.Functions
 
             if (stream.Length == 0) return new NotFoundObjectResult("Email failed, pdf does not exist");
             
-
             string connectionString = Environment.GetEnvironmentVariable("EmailConnectionString");
             var emailClient = new EmailClient(connectionString);
 

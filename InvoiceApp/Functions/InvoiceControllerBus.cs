@@ -56,7 +56,6 @@ namespace InvoiceApp.Functions
 
             if (response.StatusCode == HttpStatusCode.OK)
             {
-
                 InvoiceResponseDto invoiceResponse = new InvoiceResponseDto
                 {
                     Id = invoice.Id,
