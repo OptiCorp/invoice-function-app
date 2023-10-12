@@ -9,5 +9,7 @@ namespace InvoiceApp.Model
         public int CompletionTime { get; set; }
 
         public int HourlyRate { get; set; }
+
+        public int EstimatedCompletionTime { get; set; }
     }
 }
