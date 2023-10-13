@@ -59,7 +59,7 @@ namespace InvoiceApp.Functions
             };
 
             var emailMessage = new EmailMessage(
-                senderAddress: "DoNotReply@74f652f3-add8-4eef-9e3b-f91509bb546d.azurecomm.net",
+                senderAddress: "DoNotReply@ec39f861-0e3f-4635-bc0b-155e823c85ae.azurecomm.net",
                 recipientAddress: invoice.Receiver,
                 content: emailContent
             );
