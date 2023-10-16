@@ -77,8 +77,8 @@ namespace InvoiceApp.Functions
                 await sender.SendMessageAsync(sbMessage);
             }
 
-            _context.Invoice.Remove(invoice);
-            await _context.SaveChangesAsync();
+            // _context.Invoice.Remove(invoice);
+            // await _context.SaveChangesAsync();
 
             // TODO: return an error notification to service bus
             // var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
