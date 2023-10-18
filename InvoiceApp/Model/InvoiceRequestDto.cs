@@ -7,7 +7,7 @@ namespace InvoiceApp.Model
     {
         public string Receiver { get; set; }
 
-        public int Amount { get; set; }
+        public float Amount { get; set; }
 
         public ICollection<Workflow> Workflows { get; set; }
     }
