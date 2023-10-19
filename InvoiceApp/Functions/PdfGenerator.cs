@@ -52,7 +52,7 @@ namespace InvoiceApp.Functions
 
             string htmlStyle = "<style>.invoice-box {max-width: 80%;margin: auto;padding: 30px;border: 1px solid #eee;box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);font-size: 16px;line-height: 24px;font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;color: #555;}.invoice-box table {width: 100%;line-height: inherit;text-align: left;}.invoice-box table.table-class {width: 80%;line-height: inherit;text-align: left;}.invoice-box table td {padding: 5px;vertical-align: top;}.right-align {text-align: right;}.invoice-box table tr.top table td {padding-bottom: 20px;}.invoice-box table tr.top table td.title {font-size: 45px;line-height: 45px;color: #333;}.invoice-box table tr.information table td {padding-bottom: 40px;}.invoice-box table tr.heading td {background: #eee;border-bottom: 1px solid #ddd;font-weight: bold;}.invoice-box table tr.details td {padding-bottom: 20px;}.invoice-box table tr.item td {border-bottom: 1px solid #eee;}.invoice-box table tr.item.last td {border-bottom: none;}.invoice-box table tr.total td.total-data {border-top: 2px solid #eee;font-weight: bold;text-align: right;}</style>";
             string htmlInvoiceInfo = string.Format("<tr class='top'><td colspan='5'><table><tr><td class='title'></td><td class='right-align'>Invoice ID: {0}<br />Sent: {1}</td></tr></table></td></tr>", invoice.Id, invoice.SentDate);
-            string htmlReceiverInfo = string.Format("<tr class='information'><td colspan='5'><table><tr><td>OptiCorp<br />Laberget 28<br />4020, Stavanger</td><td class='right-align'>Acme Corp.<br />John Doe<br />{0}</td></tr></table></td></tr>", invoice.Receiver);
+            string htmlReceiverInfo = string.Format("<tr class='information'><td colspan='5'><table><tr><td>OptiCorp<br />Laberget 28<br />4020, Stavanger</td><td class='right-align'><br /><br />{0}</td></tr></table></td></tr>", invoice.Receiver);
             string htmlInvoiceChecklists = "";
 
             for (int i = 0; i<numberOfWorkflows; i++)
@@ -60,15 +60,15 @@ namespace InvoiceApp.Functions
                 var workflow = workflows[i];
                 float completionTime = workflow.CompletionTime;
                 float ratePerMin = workflow.HourlyRate/60f;
-                string row = string.Format("<tr class='item'><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td class='right-align'>{4}</td></tr>", workflow.Name, workflow.EstimatedCompletionTime, workflow.CompletionTime, workflow.HourlyRate, Math.Round(completionTime*ratePerMin, 2));
+                string row = string.Format("<tr class='item'><td>{0}</td><td>{1}</td><td>{2}</td><td>${3}</td><td class='right-align'>${4}</td></tr>", workflow.Name, workflow.EstimatedCompletionTime, workflow.CompletionTime, workflow.HourlyRate, Math.Round(completionTime*ratePerMin, 2));
                 if (i == numberOfWorkflows-1)
                 {
-                    row = string.Format("<tr class='item last'><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td class='right-align'>{4}</td></tr>", workflow.Name, workflow.EstimatedCompletionTime, workflow.CompletionTime, workflow.HourlyRate, Math.Round(completionTime*ratePerMin, 2));
+                    row = string.Format("<tr class='item last'><td>{0}</td><td>{1}</td><td>{2}</td><td>${3}</td><td class='right-align'>${4}</td></tr>", workflow.Name, workflow.EstimatedCompletionTime, workflow.CompletionTime, workflow.HourlyRate, Math.Round(completionTime*ratePerMin, 2));
                 }
                 htmlInvoiceChecklists += row;
             }
 
-            string htmlInvoiceTable = string.Format("<tr class='heading'><td>Checklist</td><td>Estimated time</td><td>Time</td><td>Hourly rate</td><td class='right-align'>Price</td></tr>{0}<tr class='total'><td></td><td></td><td></td><td></td><td class='total-data'>Total: {1}</td></tr>", htmlInvoiceChecklists, Math.Round(invoice.Amount, 2));
+            string htmlInvoiceTable = string.Format("<tr class='heading'><td>Checklist</td><td>Estimated time(mins)</td><td>Time(mins)</td><td>Hourly rate</td><td class='right-align'>Price</td></tr>{0}<tr class='total'><td></td><td></td><td></td><td></td><td class='total-data'>Total: ${1}</td></tr>", htmlInvoiceChecklists, Math.Round(invoice.Amount, 2));
 
             string html = string.Format("<html><head>{0}</head><body><div class='invoice-box'><table cellpadding='0' cellspacing='0' class='table-class'>{1}{2}{3}</table></div></body></html>", htmlStyle, htmlInvoiceInfo, htmlReceiverInfo, htmlInvoiceTable);
 
