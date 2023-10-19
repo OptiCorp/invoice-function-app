@@ -17,6 +17,9 @@ namespace InvoiceApp.Model
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Id { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Number { get; set; }
+
         public DateTime CreatedDate { get; set; }
 
         public DateTime? UpdatedDate { get; set; }
