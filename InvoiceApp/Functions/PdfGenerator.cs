@@ -93,7 +93,6 @@ namespace InvoiceApp.Functions
 
                 if (i == numberOfWorkflows-1)
                 {
-
                     row = $@"<tr class='item last'>
                             <td>{workflow.Name}</td>
                             <td>{workflow.EstimatedCompletionTime}</td>
@@ -101,11 +100,9 @@ namespace InvoiceApp.Functions
                             <td>${workflow.HourlyRate}</td>
                             <td class='right-align'>${Math.Round(completionTime*ratePerMin, 2)}</td>
                             </tr>";
-                            
                 }
                 htmlInvoiceChecklists += row;
             }
-
             string htmlInvoiceTable = $@"<tr class='heading'>
                                         <td>Checklist</td>
                                         <td>Estimated time(mins)</td>
