@@ -34,8 +34,8 @@ namespace InvoiceApp.Functions
 
             Invoice invoice = new Invoice
             {
-                CreatedDate = DateTime.Now,
-                SentDate = DateTime.Now,
+                CreatedDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time")),
+                SentDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time")),
                 Status = InvoiceStatus.Unpaid,
                 Sender = "Opticorp",
                 Receiver = invoiceDto.Receiver,
@@ -59,6 +59,7 @@ namespace InvoiceApp.Functions
                 InvoiceResponseDto invoiceResponse = new InvoiceResponseDto
                 {
                     Id = invoice.Id,
+                    Number = invoice.Number,
                     CreatedDate = invoice.CreatedDate,
                     SentDate = invoice.SentDate,
                     Status = invoice.Status,
