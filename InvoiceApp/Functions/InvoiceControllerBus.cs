@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
@@ -54,39 +55,48 @@ namespace InvoiceApp.Functions
                 null
             );
 
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                InvoiceResponseDto invoiceResponse = new InvoiceResponseDto
-                {
-                    Id = invoice.Id,
-                    CreatedDate = invoice.CreatedDate,
-                    SentDate = invoice.SentDate,
-                    Status = invoice.Status,
-                    Sender = invoice.Sender,
-                    Receiver = invoice.Receiver,
-                    Amount = invoice.Amount,
-                    PdfBlobLink = invoice.PdfBlobLink,
-                    Workflows = invoiceDto.Workflows
-                };
+            var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
+            var sbClient = new ServiceBusClient(connectionString);
 
-                var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
-                var sbClient = new ServiceBusClient(connectionString);
-                var sender = sbClient.CreateSender("add-invoice");
-                var body = JsonSerializer.Serialize(invoiceResponse);
-                var sbMessage = new ServiceBusMessage(body);
-                await sender.SendMessageAsync(sbMessage);
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                // Use this when notifications work:
+                // await ReturnError(sbClient, invoice, await response.Content.ReadAsStringAsync());
+                return;
             }
 
-            // _context.Invoice.Remove(invoice);
-            // await _context.SaveChangesAsync();
+            await ReturnInvoice(sbClient, invoice);
+        }
 
-            // TODO: return an error notification to service bus
-            // var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
-            // var sbClient = new ServiceBusClient(connectionString);
-            // var sender = sbClient.CreateSender("add-invoice");
-            // var body = JsonSerializer.Serialize(invoiceResponse);
-            // var sbMessage = new ServiceBusMessage(body);
-            // await sender.SendMessageAsync(sbMessage);
+        public async Task ReturnInvoice(ServiceBusClient client, Invoice invoice)
+        {
+            InvoiceResponseDto invoiceResponse = new InvoiceResponseDto
+            {
+                Id = invoice.Id,
+                CreatedDate = invoice.CreatedDate,
+                SentDate = invoice.SentDate,
+                Status = invoice.Status,
+                Sender = invoice.Sender,
+                Receiver = invoice.Receiver,
+                Amount = invoice.Amount,
+                PdfBlobLink = invoice.PdfBlobLink,
+                Workflows = JsonSerializer.Deserialize<ICollection<Workflow>>(invoice.WorkflowsSerialized)
+            };
+
+            var sender = client.CreateSender("add-invoice");
+            var body = JsonSerializer.Serialize(invoiceResponse);
+            var sbMessage = new ServiceBusMessage(body);
+            await sender.SendMessageAsync(sbMessage);
+        }
+
+        public async Task ReturnError(ServiceBusClient client, Invoice invoice, string errorMessage)
+        {
+            _context.Invoice.Remove(invoice);
+            await _context.SaveChangesAsync();
+
+            var sender = client.CreateSender("notification");
+            var sbMessage = new ServiceBusMessage(errorMessage);
+            await sender.SendMessageAsync(sbMessage);
         }
     }
 }
