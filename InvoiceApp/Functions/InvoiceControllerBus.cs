@@ -73,6 +73,7 @@ namespace InvoiceApp.Functions
             InvoiceResponseDto invoiceResponse = new InvoiceResponseDto
             {
                 Id = invoice.Id,
+                Number = invoice.Number,
                 CreatedDate = invoice.CreatedDate,
                 SentDate = invoice.SentDate,
                 Status = invoice.Status,
