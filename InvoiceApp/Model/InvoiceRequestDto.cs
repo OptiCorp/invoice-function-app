@@ -10,5 +10,7 @@ namespace InvoiceApp.Model
         public float Amount { get; set; }
 
         public ICollection<Workflow> Workflows { get; set; }
+
+        public string Title { get; set; }
     }
 }

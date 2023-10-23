@@ -25,7 +25,7 @@ namespace InvoiceApp.Functions
 
         [Function("InvoiceControllerBus")]
         public async Task Run(
-            [ServiceBusTrigger("generate-invoice", "generate-invoice-function", Connection = "connectionStringBus")]string mySbMsg)
+            [ServiceBusTrigger("generate-invoice", "generate-invoice-function", Connection = "connectionStringBus")] string mySbMsg)
         {
             InvoiceRequestDto invoiceDto = JsonSerializer.Deserialize<InvoiceRequestDto>(mySbMsg);
 
@@ -35,6 +35,7 @@ namespace InvoiceApp.Functions
 
             Invoice invoice = new Invoice
             {
+                Title = invoiceDto.Title,
                 CreatedDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time")),
                 SentDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time")),
                 Status = InvoiceStatus.Unpaid,
@@ -44,7 +45,6 @@ namespace InvoiceApp.Functions
                 PdfBlobLink = Guid.NewGuid().ToString(),
                 WorkflowsSerialized = workflowsSerialized
             };
-            
 
             await _context.Invoice.AddAsync(invoice);
             await _context.SaveChangesAsync();
@@ -74,6 +74,7 @@ namespace InvoiceApp.Functions
             {
                 Id = invoice.Id,
                 Number = invoice.Number,
+                Title = invoice.Title,
                 CreatedDate = invoice.CreatedDate,
                 SentDate = invoice.SentDate,
                 Status = invoice.Status,
