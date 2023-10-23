@@ -25,7 +25,7 @@ namespace InvoiceApp.Functions
 
         [Function("InvoiceControllerBus")]
         public async Task Run(
-            [ServiceBusTrigger("generate-invoice", "generate-invoice-function", Connection = "connectionStringBus")]string mySbMsg)
+            [ServiceBusTrigger("generate-invoice", "generate-invoice-function", Connection = "connectionStringBus")] string mySbMsg)
         {
             InvoiceRequestDto invoiceDto = JsonSerializer.Deserialize<InvoiceRequestDto>(mySbMsg);
 
@@ -44,7 +44,6 @@ namespace InvoiceApp.Functions
                 PdfBlobLink = Guid.NewGuid().ToString(),
                 WorkflowsSerialized = workflowsSerialized
             };
-            
 
             await _context.Invoice.AddAsync(invoice);
             await _context.SaveChangesAsync();
