@@ -35,6 +35,7 @@ namespace InvoiceApp.Functions
 
             Invoice invoice = new Invoice
             {
+                Title = invoiceDto.Title,
                 CreatedDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time")),
                 SentDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time")),
                 Status = InvoiceStatus.Unpaid,
@@ -73,6 +74,7 @@ namespace InvoiceApp.Functions
             {
                 Id = invoice.Id,
                 Number = invoice.Number,
+                Title = invoice.Title,
                 CreatedDate = invoice.CreatedDate,
                 SentDate = invoice.SentDate,
                 Status = invoice.Status,
