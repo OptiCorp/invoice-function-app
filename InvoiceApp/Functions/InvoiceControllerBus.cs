@@ -32,7 +32,11 @@ namespace InvoiceApp.Functions
 
 			InvoiceRequestDto invoiceDto = JsonSerializer.Deserialize<InvoiceRequestDto>(mySbMsg);
 
-			if (invoiceDto == null || invoiceDto.Workflows.Count == 0 || invoiceDto.Workflows == null) await ReturnError(sbClient, null, "Something went wrong", invoiceDto.Sender);
+			if (invoiceDto == null || invoiceDto.Workflows.Count == 0 || invoiceDto.Workflows == null)
+			{
+				await ReturnError(sbClient, null, "Something went wrong", invoiceDto.Sender);
+				return;
+			}
 
 			var workflowsSerialized = JsonSerializer.Serialize<ICollection<Workflow>>(invoiceDto.Workflows);
 
