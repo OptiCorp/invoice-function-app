@@ -12,5 +12,7 @@ namespace InvoiceApp.Model
         public ICollection<Workflow> Workflows { get; set; }
 
         public string Title { get; set; }
+
+        public string Sender { get; set; }
     }
 }
