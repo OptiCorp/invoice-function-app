@@ -27,9 +27,12 @@ namespace InvoiceApp.Functions
 		public async Task Run(
 			[ServiceBusTrigger("generate-invoice", "generate-invoice-function", Connection = "connectionStringBus")] string mySbMsg)
 		{
+			var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
+			var sbClient = new ServiceBusClient(connectionString);
+
 			InvoiceRequestDto invoiceDto = JsonSerializer.Deserialize<InvoiceRequestDto>(mySbMsg);
 
-			if (invoiceDto == null || invoiceDto.Workflows.Count == 0 || invoiceDto.Workflows == null) return;
+			if (invoiceDto == null || invoiceDto.Workflows.Count == 0 || invoiceDto.Workflows == null) await ReturnError(sbClient, null, "Something went wrong", invoiceDto.Sender);
 
 			var workflowsSerialized = JsonSerializer.Serialize<ICollection<Workflow>>(invoiceDto.Workflows);
 
@@ -55,13 +58,11 @@ namespace InvoiceApp.Functions
 				null
 			);
 
-			var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
-			var sbClient = new ServiceBusClient(connectionString);
 
 			if (response.StatusCode != HttpStatusCode.OK)
 			{
 				// Use this when notifications work:
-				// await ReturnError(sbClient, invoice, await response.Content.ReadAsStringAsync());
+				await ReturnError(sbClient, invoice, await response.Content.ReadAsStringAsync(), invoice.Sender);
 				return;
 			}
 
@@ -91,15 +92,18 @@ namespace InvoiceApp.Functions
 			await sender.SendMessageAsync(sbMessage);
 		}
 
-		public async Task ReturnError(ServiceBusClient client, Invoice invoice, string errorMessage)
+		public async Task ReturnError(ServiceBusClient client, Invoice invoice, string errorMessage, string senderId)
 		{
-			_context.Invoice.Remove(invoice);
-			await _context.SaveChangesAsync();
+			if (invoice != null)
+			{
+				_context.Invoice.Remove(invoice);
+				await _context.SaveChangesAsync();
+			}
 
 			var error = new InvoiceError
 			{
 				Message = errorMessage,
-				ReceiverId = invoice.Sender
+				ReceiverId = senderId
 			};
 
 			var messageBody = JsonSerializer.Serialize(error);
