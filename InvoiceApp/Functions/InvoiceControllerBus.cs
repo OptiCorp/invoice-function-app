@@ -62,7 +62,7 @@ namespace InvoiceApp.Functions
 			if (response.StatusCode != HttpStatusCode.OK)
 			{
 				// Use this when notifications work:
-				// await ReturnError(sbClient, invoice, await response.Content.ReadAsStringAsync());
+				await ReturnError(sbClient, invoice, await response.Content.ReadAsStringAsync(), invoice.Sender);
 				return;
 			}
 
