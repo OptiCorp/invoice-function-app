@@ -15,90 +15,98 @@ using Microsoft.Azure.Functions.Worker;
 
 namespace InvoiceApp.Functions
 {
-    public class InvoiceControllerBus
-    {
-        private readonly InvoiceContext _context;
-        public InvoiceControllerBus(InvoiceContext invoiceContext)
-        {
-            _context = invoiceContext;
-        }
+	public class InvoiceControllerBus
+	{
+		private readonly InvoiceContext _context;
+		public InvoiceControllerBus(InvoiceContext invoiceContext)
+		{
+			_context = invoiceContext;
+		}
 
-        [Function("InvoiceControllerBus")]
-        public async Task Run(
-            [ServiceBusTrigger("generate-invoice", "generate-invoice-function", Connection = "connectionStringBus")] string mySbMsg)
-        {
-            InvoiceRequestDto invoiceDto = JsonSerializer.Deserialize<InvoiceRequestDto>(mySbMsg);
+		[Function("InvoiceControllerBus")]
+		public async Task Run(
+			[ServiceBusTrigger("generate-invoice", "generate-invoice-function", Connection = "connectionStringBus")] string mySbMsg)
+		{
+			InvoiceRequestDto invoiceDto = JsonSerializer.Deserialize<InvoiceRequestDto>(mySbMsg);
 
-            if (invoiceDto == null || invoiceDto.Workflows.Count == 0 || invoiceDto.Workflows == null) return;
+			if (invoiceDto == null || invoiceDto.Workflows.Count == 0 || invoiceDto.Workflows == null) return;
 
-            var workflowsSerialized = JsonSerializer.Serialize<ICollection<Workflow>>(invoiceDto.Workflows);
+			var workflowsSerialized = JsonSerializer.Serialize<ICollection<Workflow>>(invoiceDto.Workflows);
 
-            Invoice invoice = new Invoice
-            {
-                Title = invoiceDto.Title,
-                CreatedDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time")),
-                SentDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time")),
-                Status = InvoiceStatus.Unpaid,
-                Sender = "Opticorp",
-                Receiver = invoiceDto.Receiver,
-                Amount = invoiceDto.Amount,
-                PdfBlobLink = Guid.NewGuid().ToString(),
-                WorkflowsSerialized = workflowsSerialized
-            };
+			Invoice invoice = new Invoice
+			{
+				Title = invoiceDto.Title,
+				CreatedDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time")),
+				SentDate = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time")),
+				Status = InvoiceStatus.Unpaid,
+				Sender = invoiceDto.Sender,
+				Receiver = invoiceDto.Receiver,
+				Amount = invoiceDto.Amount,
+				PdfBlobLink = Guid.NewGuid().ToString(),
+				WorkflowsSerialized = workflowsSerialized
+			};
 
-            await _context.Invoice.AddAsync(invoice);
-            await _context.SaveChangesAsync();
+			await _context.Invoice.AddAsync(invoice);
+			await _context.SaveChangesAsync();
 
-            var client = new HttpClient();
-            var response = await client.PostAsync(
-                string.Format(Environment.GetEnvironmentVariable("GeneratePdfEndpoint") + "{0}", invoice.Id),
-                null
-            );
+			var client = new HttpClient();
+			var response = await client.PostAsync(
+				string.Format(Environment.GetEnvironmentVariable("GeneratePdfEndpoint") + "{0}", invoice.Id),
+				null
+			);
 
-            var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
-            var sbClient = new ServiceBusClient(connectionString);
+			var connectionString = Environment.GetEnvironmentVariable("connectionStringBus");
+			var sbClient = new ServiceBusClient(connectionString);
 
-            if (response.StatusCode != HttpStatusCode.OK)
-            {
-                // Use this when notifications work:
-                // await ReturnError(sbClient, invoice, await response.Content.ReadAsStringAsync());
-                return;
-            }
+			if (response.StatusCode != HttpStatusCode.OK)
+			{
+				// Use this when notifications work:
+				// await ReturnError(sbClient, invoice, await response.Content.ReadAsStringAsync());
+				return;
+			}
 
-            await ReturnInvoice(sbClient, invoice);
-        }
+			await ReturnInvoice(sbClient, invoice);
+		}
 
-        public async Task ReturnInvoice(ServiceBusClient client, Invoice invoice)
-        {
-            InvoiceResponseDto invoiceResponse = new InvoiceResponseDto
-            {
-                Id = invoice.Id,
-                Number = invoice.Number,
-                Title = invoice.Title,
-                CreatedDate = invoice.CreatedDate,
-                SentDate = invoice.SentDate,
-                Status = invoice.Status,
-                Sender = invoice.Sender,
-                Receiver = invoice.Receiver,
-                Amount = invoice.Amount,
-                PdfBlobLink = invoice.PdfBlobLink,
-                Workflows = JsonSerializer.Deserialize<ICollection<Workflow>>(invoice.WorkflowsSerialized)
-            };
+		public async Task ReturnInvoice(ServiceBusClient client, Invoice invoice)
+		{
+			InvoiceResponseDto invoiceResponse = new InvoiceResponseDto
+			{
+				Id = invoice.Id,
+				Number = invoice.Number,
+				Title = invoice.Title,
+				CreatedDate = invoice.CreatedDate,
+				SentDate = invoice.SentDate,
+				Status = invoice.Status,
+				Sender = invoice.Sender,
+				Receiver = invoice.Receiver,
+				Amount = invoice.Amount,
+				PdfBlobLink = invoice.PdfBlobLink,
+				Workflows = JsonSerializer.Deserialize<ICollection<Workflow>>(invoice.WorkflowsSerialized)
+			};
 
-            var sender = client.CreateSender("add-invoice");
-            var body = JsonSerializer.Serialize(invoiceResponse);
-            var sbMessage = new ServiceBusMessage(body);
-            await sender.SendMessageAsync(sbMessage);
-        }
+			var sender = client.CreateSender("add-invoice");
+			var body = JsonSerializer.Serialize(invoiceResponse);
+			var sbMessage = new ServiceBusMessage(body);
+			await sender.SendMessageAsync(sbMessage);
+		}
 
-        public async Task ReturnError(ServiceBusClient client, Invoice invoice, string errorMessage)
-        {
-            _context.Invoice.Remove(invoice);
-            await _context.SaveChangesAsync();
+		public async Task ReturnError(ServiceBusClient client, Invoice invoice, string errorMessage)
+		{
+			_context.Invoice.Remove(invoice);
+			await _context.SaveChangesAsync();
 
-            var sender = client.CreateSender("notification");
-            var sbMessage = new ServiceBusMessage(errorMessage);
-            await sender.SendMessageAsync(sbMessage);
-        }
-    }
+			var error = new InvoiceError
+			{
+				Message = errorMessage,
+				ReceiverId = invoice.Sender
+			};
+
+			var messageBody = JsonSerializer.Serialize(error);
+
+			var sender = client.CreateSender("notification");
+			var sbMessage = new ServiceBusMessage(messageBody);
+			await sender.SendMessageAsync(sbMessage);
+		}
+	}
 }
