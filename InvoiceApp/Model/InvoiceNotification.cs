@@ -1,8 +1,9 @@
 namespace InvoiceApp.Model
 {
-    public class InvoiceError
+    public class InvoiceNotification
     {
         public string Message { get; set; }
         public string ReceiverId { get; set; }
+        public string NotificationType { get; set; }
     }
 }
