@@ -34,7 +34,7 @@ namespace InvoiceApp.Functions
 
 			if (invoiceDto == null || invoiceDto.Workflows.Count == 0 || invoiceDto.Workflows == null)
 			{
-				await ReturnError(sbClient, null, "Something went wrong", invoiceDto.Sender);
+				await ReturnError(sbClient, null, "Invoicing failed due to no checklists being provided", invoiceDto.Sender);
 				return;
 			}
 
@@ -90,13 +90,25 @@ namespace InvoiceApp.Functions
 				Workflows = JsonSerializer.Deserialize<ICollection<Workflow>>(invoice.WorkflowsSerialized)
 			};
 
-			var sender = client.CreateSender("add-invoice");
-			var body = JsonSerializer.Serialize(invoiceResponse);
-			var sbMessage = new ServiceBusMessage(body);
-			await sender.SendMessageAsync(sbMessage);
+			var success = new InvoiceNotification
+			{
+				Message = "Invoice created successfully",
+				ReceiverId = invoice.Sender,
+				NotificationType = "Success"
+			};
+
+			var notificationSender = client.CreateSender("notification");
+			var notificationBody = JsonSerializer.Serialize(success);
+			var notificationMessage = new ServiceBusMessage(notificationBody);
+			await notificationSender.SendMessageAsync(notificationMessage);
+
+			var invoiceSender = client.CreateSender("add-invoice");
+			var invoiceBody = JsonSerializer.Serialize(invoiceResponse);
+			var invoiceMessage = new ServiceBusMessage(invoiceBody);
+			await invoiceSender.SendMessageAsync(invoiceMessage);
 		}
 
-		public async Task ReturnError(ServiceBusClient client, Invoice invoice, string errorMessage, string senderId)
+		public async Task ReturnError(ServiceBusClient client, Invoice invoice, string errorMessage, string sender)
 		{
 			if (invoice != null)
 			{
@@ -104,17 +116,17 @@ namespace InvoiceApp.Functions
 				await _context.SaveChangesAsync();
 			}
 
-			var error = new InvoiceError
+			var error = new InvoiceNotification
 			{
 				Message = errorMessage,
-				ReceiverId = senderId
+				ReceiverId = sender,
+				NotificationType = "Error"
 			};
 
+			var notificationSender = client.CreateSender("notification");
 			var messageBody = JsonSerializer.Serialize(error);
-
-			var sender = client.CreateSender("notification");
 			var sbMessage = new ServiceBusMessage(messageBody);
-			await sender.SendMessageAsync(sbMessage);
+			await notificationSender.SendMessageAsync(sbMessage);
 		}
 	}
 }
